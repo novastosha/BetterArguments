@@ -2,9 +2,8 @@ package dev.nova.betterarguments.parser;
 
 import dev.nova.betterarguments.arguments.Argument;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
+
 
 public class ArgumentParser {
 
@@ -15,7 +14,6 @@ public class ArgumentParser {
     private final String[] args;
     private final ArrayList<Argument<?>> arguments;
     private final HashMap<Argument<?>, Object> data;
-    private int longestLength = 0;
     private boolean parsed = false;
 
     public ArgumentParser(String[] args) {
@@ -45,7 +43,6 @@ public class ArgumentParser {
                 }
 
                 if (argument == null) {
-                    System.out.println("[WARN] [ARGUMENT PARSER] Unknown argument passed: " + argumentRAW);
                     continue;
                 }
 
@@ -75,7 +72,7 @@ public class ArgumentParser {
                 } else if (argument.getType().isAssignableFrom(Integer.class)) {
                     converted = Integer.parseInt(argsRaw);
                 } else if (argument.getConverter() == null) {
-                    System.out.println("Argument passed without converter!");
+                    throw new RuntimeException("Argument passed without converter!");
                 }
 
                 data.put(argument, converted);
@@ -87,61 +84,13 @@ public class ArgumentParser {
 
     }
 
-    public ArrayList<Argument<?>> getArguments() {
-        return arguments;
-    }
-
-    public void addHelpArgument() {
-        if (parsed) return;
-        Argument<Object> objectArgument = Argument.Builder.create("help")
-                .withDescription("Shows information about arguments.")
-                .withAliases(new String[]{"h"})
-                .build(this);
+    public List<Argument<?>> getArguments() {
+        return Collections.unmodifiableList(arguments);
     }
 
     public <T> void addArgument(Argument<T> argument) {
         if (!validateArgument(argument)) return;
         arguments.add(argument);
-
-        String toDisplay = getProperDisplay(argument);
-
-        if (toDisplay.length() + 2 > longestLength) {
-            longestLength = toDisplay.length() + 2;
-        }
-    }
-
-    private <T> String getProperDisplay(Argument<T> argument) {
-        String toDisplay = "--" + argument.getName();
-
-        if (argument.getType() != null) {
-            toDisplay = toDisplay + "[" + argument.getType().getSimpleName() + "]=" + "<arg>";
-        }
-        return toDisplay;
-    }
-
-    public String replaceMissing(String string) {
-        StringBuilder builder = new StringBuilder();
-        builder.append(string);
-
-        for (int i = 0; i < longestLength - string.length(); i++) {
-            builder.append(" ");
-        }
-
-        return builder.toString();
-    }
-
-    public void printHelp() {
-        System.out.println(replaceMissing("Name") + "Description");
-        System.out.println(replaceMissing("-----") + "-------------");
-        for (Argument<?> argumentA : arguments) {
-            System.out.println(
-                    replaceMissing(getProperDisplay(argumentA)) +
-                    argumentA.getDescription().replaceAll("\n",replaceMissing("\n")+" ")
-            );
-            /*if(argumentA.getDescription().contains("\n")){
-                System.out.println();
-            }*/
-        }
     }
 
     private <T> boolean validateArgument(Argument<T> argument) {

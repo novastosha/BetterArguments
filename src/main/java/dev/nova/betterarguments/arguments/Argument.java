@@ -1,15 +1,18 @@
 package dev.nova.betterarguments.arguments;
 
 import dev.nova.betterarguments.parser.ArgumentParser;
+import lombok.Getter;
 
 public class Argument<T> {
 
-    private final String name;
-    private final String description;
-    private final Class<? extends T> type;
-    private final ValueConverter<T> converter;
-    private final String[] aliases;
+    @Getter private final String name;
+    @Getter private final String description;
+    @Getter private final Class<? extends T> type;
+    @Getter private final ValueConverter<T> converter;
+    @Getter private final String[] aliases;
+
     private final ArgumentParser parser;
+
     private final boolean dataArgument;
 
     private Argument(String name, String description, Class<? extends T> type, ValueConverter<T> converter, String[] aliases, ArgumentParser parser, boolean dataArgument) {
@@ -24,26 +27,6 @@ public class Argument<T> {
 
     public boolean isDataArgument() {
         return dataArgument;
-    }
-
-    public String[] getAliases() {
-        return aliases;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Class<? extends T> getType() {
-        return type;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public ValueConverter<T> getConverter() {
-        return converter;
     }
 
     public T get(){
@@ -71,7 +54,7 @@ public class Argument<T> {
             return new Builder<>(name, clazz);
         }
 
-        public static <T> Builder<T> create(String name) {
+        public static <Void> Builder<Void> create(String name) {
             return new Builder<>(name, null);
         }
 
@@ -91,15 +74,10 @@ public class Argument<T> {
             return this;
         }
 
-        public Builder<T> withAliases(String[] aliases) {
+        public Builder<T> withAliases(String... otherAliases) {
             if (aliases == null) return this;
 
-            this.aliases = aliases;
-            return this;
-        }
-
-        public Builder<T> isDataArgument(boolean b){
-            this.dataArgument = b;
+            this.aliases = otherAliases;
             return this;
         }
 
@@ -110,6 +88,7 @@ public class Argument<T> {
         }
     }
 
+    @FunctionalInterface
     public interface ValueConverter<T> {
 
         T convert(String raw);

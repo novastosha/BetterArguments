@@ -14,7 +14,7 @@ public class MainTest {
 
         Argument<Decompiler> decompilerArgument = Argument.Builder.create("decompiler", Decompiler.class)
                 .withDescription("Choose a decompiler to use. Available decompilers: "+ Arrays.toString(Decompiler.values()))
-                .withAliases(new String[]{"decomp"})
+                .withAliases("decomp")
                 .withValueConverter(new EnumConverter<>(Decompiler.class) {
                     @Override
                     protected Decompiler handleException(String input, IllegalArgumentException exception) {
@@ -31,9 +31,7 @@ public class MainTest {
         parser.addHelpArgument();
         parser.parse();
 
-        if(parser.hasArgument("help")) {
-            parser.printHelp();
-        }
+
 
         if (!parser.hasArgument("decompiler")) {
             System.out.println("Missing decompiler!");
